@@ -2,33 +2,58 @@ require_relative '../services/open_data_service'
 require 'pry'
 
 class Siren
+  FULL_SCORE = 100
+  DECREASING_RULES = { 
+    unfavorable: { equal_and_above_threshold: 5, below_threshold: 1 },
+    favorable: 1
+  }.freeze
+
   def initialize(evaluation)
     @evaluation = evaluation
   end
 
   def update
-    if @evaluation.score > 0 && @evaluation.state == "unconfirmed" && @evaluation.reason == "ongoing_database_update"
-      company_state =::OpenDataService::get_company_state(@evaluation.value)
-      return @evaluation.assign_fields(state: "favorable", reason: "company_opened", score: 100) if company_state == "Actif"
-        
-      @evaluation.assign_fields(state: "unfavorable", reason:"company_closed", score: 100)
-    elsif @evaluation.score >= 50
-      if @evaluation.state == "unconfirmed" && @evaluation.reason == "unable_to_reach_api"
-        @evaluation.assign_fields(state: nil, reason: nil, score: @evaluation.score - 5)
-      elsif @evaluation.state == "favorable"
-        @evaluation.assign_fields(state: nil, reason: nil, score: @evaluation.score - 1)
-      end
-    elsif @evaluation.score <= 50 && @evaluation.score > 0
-      if @evaluation.state == "unconfirmed" && @evaluation.reason == "unable_to_reach_api" || @evaluation.state == "favorable"
-        @evaluation.assign_fields(state: nil, reason: nil, score: @evaluation.score - 1)
-      end
-    else
-      if @evaluation.state == "favorable" || @evaluation.state == "unconfirmed"
-        company_state =::OpenDataService::get_company_state(@evaluation.value)
-        return @evaluation.assign_fields(state: "favorable", reason: "company_opened", score: 100) if company_state == "Actif"
+    return update_with_api_result if @evaluation.should_be_evalutated?
 
-        @evaluation.assign_fields(state: "unfavorable", reason: "company_closed", score: 100)
-      end
+    return update_for_unfavorable if @evaluation.state == 'unconfirmed' && @evaluation.reason == 'unable_to_reach_api'
+
+    update_for_favorable
+  end
+
+  private
+
+  def update_with_api_result
+    company_state = ::OpenDataService.get_company_state(@evaluation.value)
+    return assign_company_active_result if company_state == 'Actif'
+
+    assign_company_closed_result
+  end
+
+  def assign_company_active_result
+    @evaluation.assign_fields(state: 'favorable', reason: 'company_opened', score: FULL_SCORE)
+  end
+
+  def assign_company_closed_result
+    @evaluation.assign_fields(state: 'unfavorable', reason: 'company_closed', score: FULL_SCORE)
+  end
+
+  def update_for_unfavorable
+    return if @evaluation.state == 'unfavorable'
+
+    decreasing_scores = DECREASING_RULES[:unfavorable]
+
+    if current_score >= ::Evaluation::SCORE_THRESHOLD
+      @evaluation.assign_fields(score: current_score - decreasing_scores[:equal_and_above_threshold])
+    else
+      @evaluation.assign_fields(score: current_score - decreasing_scores[:below_threshold])
     end
+  end
+
+  def update_for_favorable
+    @evaluation.assign_fields(score: current_score - DECREASING_RULES[:favorable])
+  end
+
+  def current_score
+    @evaluation.score
   end
 end
