@@ -1,4 +1,6 @@
 class Evaluation
+  TYPES = { siren: 'SIREN', vat: 'VAT' }.freeze
+  
   attr_reader :type, :value, :score, :state, :reason
 
   def initialize(type:, value:, score:, state:, reason:)
