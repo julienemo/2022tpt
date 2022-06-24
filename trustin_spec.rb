@@ -2,6 +2,7 @@
 
 require_relative './evaluation/'
 require_relative './trustin/'
+require_relative './open_data_service'
 
 RSpec.describe TrustIn do
   describe "#update_score" do

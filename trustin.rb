@@ -1,5 +1,6 @@
 require "json"
 require "net/http"
+require_relative './open_data_service'
 
 class TrustIn
   def initialize(evaluations)
@@ -10,12 +11,7 @@ class TrustIn
     @evaluations.each do |evaluation|
       if evaluation.type == "SIREN"
         if evaluation.score > 0 && evaluation.state == "unconfirmed" && evaluation.reason == "ongoing_database_update"
-          uri = URI("https://public.opendatasoft.com/api/records/1.0/search/?dataset=sirene_v3" \
-            "&q=#{evaluation.value}&sort=datederniertraitementetablissement" \
-            "&refine.etablissementsiege=oui")
-          response = Net::HTTP.get(uri)
-          parsed_response = JSON.parse(response)
-          company_state = parsed_response["records"].first["fields"]["etatadministratifetablissement"]
+          company_state = ::OpenDataService::get_company_state(evaluation.value)
           if company_state == "Actif"
             evaluation.state = "favorable"
             evaluation.reason = "company_opened"
@@ -37,12 +33,7 @@ class TrustIn
           end
         else
           if evaluation.state == "favorable" || evaluation.state == "unconfirmed"
-            uri = URI("https://public.opendatasoft.com/api/records/1.0/search/?dataset=sirene_v3" \
-                      "&q=#{evaluation.value}&sort=datederniertraitementetablissement" \
-                      "&refine.etablissementsiege=oui")
-            response = Net::HTTP.get(uri)
-            parsed_response = JSON.parse(response)
-            company_state = parsed_response["records"].first["fields"]["etatadministratifetablissement"]
+            company_state = ::OpenDataService::get_company_state(evaluation.value)
             if company_state == "Actif"
               evaluation.state = "favorable"
               evaluation.reason = "company_opened"
