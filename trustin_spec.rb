@@ -4,8 +4,8 @@ require_relative './evaluation/'
 require_relative './trustin/'
 
 RSpec.describe TrustIn do
-  describe "#update_score" do
-    subject! { described_class.new(evaluations).update_score }
+  describe ".update_score_for_all" do
+    subject! { described_class.update_score_for_all(evaluations) }
 
     context "when the evaluation type is 'SIREN'" do
       context "with a <score> greater or equal to 50 AND the <state> is unconfirmed and the <reason> is 'unable_to_reach_api'" do
