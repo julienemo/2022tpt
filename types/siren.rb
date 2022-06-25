@@ -1,5 +1,4 @@
 require_relative '../services/open_data_service'
-require 'pry'
 
 class Siren
   FULL_SCORE = 100

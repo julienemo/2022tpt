@@ -1,4 +1,3 @@
-require 'pry'
 require_relative './types/siren'
 require_relative './types/vat'
 
@@ -48,7 +47,7 @@ class Evaluation
     @reason = reason || @reason
     @score = score || @score
     @score = 0 if @score.negative?
-    
+
     self
   end
 

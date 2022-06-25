@@ -1,5 +1,4 @@
 require_relative '../services/fake_vat_service'
-require 'pry'
 
 class Vat
   FULL_SCORE = 100
@@ -33,7 +32,7 @@ class Vat
   def update_favorable
     @evaluation.assign_fields(score: current_score - DECREASING_RULES[:favorable])
   end
-  
+
   private
 
   def current_score
