@@ -1,6 +1,7 @@
 require 'pry'
 class Evaluation
   TYPES = { siren: 'SIREN', vat: 'VAT' }.freeze
+  SCORE_THRESHOLD = 50
 
   attr_reader :type, :value, :score, :state, :reason
 
@@ -16,14 +17,14 @@ class Evaluation
     "#{@type}, #{@value}, #{@score}, #{@state}, #{@reason}"
   end
 
-  def assign_fields(state:, reason:, score:)
+  def assign_fields(state: nil, reason: nil, score: nil)
     @state = state || @state
     @reason = reason || @reason
     @score = score || @score
   end
 
   def should_be_evalutated?
-    return false if @score.zero? && @state == 'unfavorable'
+    return false if @state == 'unfavorable'
 
     unconfirmed_for_ongoing_update = @state == 'unconfirmed' && reason == 'ongoing_database_update'
     unconfirmed_for_ongoing_update || @score.zero?
