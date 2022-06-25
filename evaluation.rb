@@ -36,9 +36,9 @@ class Evaluation
     else
       case @type
       when ::Evaluation::TYPES[:siren]
-        ::Siren.new(self).update_for_favorable
+        ::Siren.new(self).update_favorable
       when ::Evaluation::TYPES[:vat]
-        ::Vat.new(self).update_for_favorable
+        ::Vat.new(self).update_favorable
       end
     end
   end
@@ -46,7 +46,10 @@ class Evaluation
   def assign_fields(state: nil, reason: nil, score: nil)
     @state = state || @state
     @reason = reason || @reason
-    @score = (score.negative? || score.nil?) ? @score : score
+    @score = score || @score
+    @score = 0 if @score.negative?
+    
+    self
   end
 
   private

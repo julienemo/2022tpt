@@ -5,7 +5,7 @@ class Vat
   FULL_SCORE = 100
 
   DECREASING_RULES = { 
-    unfavorable: { equal_and_above_threshold: 1, below_threshold: 3},
+    unfavorable: { equal_and_above_threshold: 1, below_threshold: 3 },
     favorable: 1
   }.freeze
 
@@ -17,7 +17,7 @@ class Vat
     @evaluation.assign_fields(::FakeVatService.perform(@evaluation.value).merge(score: FULL_SCORE))
   end 
 
-  def update_for_unconfirmed
+  def update_according_to_threshold
     return if @evaluation.state == 'unfavorable'
 
     decreasing_scores = DECREASING_RULES[:unfavorable]
@@ -29,7 +29,7 @@ class Vat
     end
   end
 
-  def update_for_favorable
+  def update_favorable
     @evaluation.assign_fields(score: current_score - DECREASING_RULES[:favorable])
   end
   

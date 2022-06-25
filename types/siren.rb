@@ -29,7 +29,7 @@ class Siren
     end
   end
 
-  def update_for_favorable
+  def update_favorable
     @evaluation.assign_fields(score: current_score - DECREASING_RULES[:favorable])
   end
 
