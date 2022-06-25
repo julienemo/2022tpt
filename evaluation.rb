@@ -17,16 +17,30 @@ class Evaluation
   end
 
   def update!
-    case @type
-    when ::Evaluation::TYPES[:siren]
-      ::Siren.new(self).update
-    when ::Evaluation::TYPES[:vat]
-      ::Vat.new(self).update
-    end
-  end
+    return if @state == 'unfavorable'
 
-  def print_fields
-    "#{@type}, #{@value}, #{@score}, #{@state}, #{@reason}"
+    if should_update_with_api?
+      case @type
+      when ::Evaluation::TYPES[:siren]
+        ::Siren.new(self).update_with_api
+      when ::Evaluation::TYPES[:vat]
+        ::Vat.new(self).update_with_api
+      end
+    elsif should_upate_according_to_threshold?
+      case @type
+      when ::Evaluation::TYPES[:siren]
+        ::Siren.new(self).update_according_to_threshold
+      when ::Evaluation::TYPES[:vat]
+        ::Vat.new(self).update_according_to_threshold
+      end
+    else
+      case @type
+      when ::Evaluation::TYPES[:siren]
+        ::Siren.new(self).update_for_favorable
+      when ::Evaluation::TYPES[:vat]
+        ::Vat.new(self).update_for_favorable
+      end
+    end
   end
 
   def assign_fields(state: nil, reason: nil, score: nil)
@@ -35,10 +49,16 @@ class Evaluation
     @score = (score.negative? || score.nil?) ? @score : score
   end
 
-  def should_be_evalutated?
+  private
+
+  def should_update_with_api?
     return false if @state == 'unfavorable'
 
-    unconfirmed_for_ongoing_update = @state == 'unconfirmed' && reason == 'ongoing_database_update'
+    unconfirmed_for_ongoing_update = @state == 'unconfirmed' && @reason == 'ongoing_database_update'
     unconfirmed_for_ongoing_update || @score.zero?
+  end
+
+  def should_upate_according_to_threshold?
+    @state == 'unconfirmed' && @reason == 'unable_to_reach_api'
   end
 end
