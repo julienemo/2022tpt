@@ -1,4 +1,7 @@
 require 'pry'
+require_relative './types/siren'
+require_relative './types/vat'
+
 class Evaluation
   TYPES = { siren: 'SIREN', vat: 'VAT' }.freeze
   SCORE_THRESHOLD = 50
@@ -13,6 +16,15 @@ class Evaluation
     @reason = reason
   end
 
+  def update!
+    case @type
+    when ::Evaluation::TYPES[:siren]
+      ::Siren.new(self).update
+    when ::Evaluation::TYPES[:vat]
+      ::Vat.new(self).update
+    end
+  end
+
   def print_fields
     "#{@type}, #{@value}, #{@score}, #{@state}, #{@reason}"
   end
@@ -20,7 +32,7 @@ class Evaluation
   def assign_fields(state: nil, reason: nil, score: nil)
     @state = state || @state
     @reason = reason || @reason
-    @score = score || @score
+    @score = (score.negative? || score.nil?) ? @score : score
   end
 
   def should_be_evalutated?
