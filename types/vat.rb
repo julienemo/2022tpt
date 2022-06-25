@@ -14,7 +14,8 @@ class Vat
   end
 
   def update_with_api
-    @evaluation.assign_fields(::FakeVatService.perform(@evaluation.value).merge(score: FULL_SCORE))
+    result = ::FakeVatService.perform(@evaluation.value).merge(score: FULL_SCORE)
+    @evaluation.assign_fields(**result)
   end 
 
   def update_according_to_threshold
