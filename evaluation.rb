@@ -4,6 +4,7 @@ require_relative './types/vat'
 class Evaluation
   TYPES = { siren: 'SIREN', vat: 'VAT' }.freeze
   SCORE_THRESHOLD = 50
+  FULL_SCORE = 100
 
   attr_reader :type, :value, :score, :state, :reason
 
