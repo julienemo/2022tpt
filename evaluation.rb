@@ -1,3 +1,4 @@
+require_relative './helper'
 require_relative './types/siren'
 require_relative './types/vat'
 
@@ -19,27 +20,14 @@ class Evaluation
   def update!
     return if @state == 'unfavorable'
 
+    raise "Unknow evaluation type #{@type}" unless TYPES.values.include?(@type)
+
     if should_update_with_api?
-      case @type
-      when ::Evaluation::TYPES[:siren]
-        ::Siren.new(self).update_with_api
-      when ::Evaluation::TYPES[:vat]
-        ::Vat.new(self).update_with_api
-      end
+      Helper.constantize(@type).new(self).update_with_api
     elsif should_upate_according_to_threshold?
-      case @type
-      when ::Evaluation::TYPES[:siren]
-        ::Siren.new(self).update_according_to_threshold
-      when ::Evaluation::TYPES[:vat]
-        ::Vat.new(self).update_according_to_threshold
-      end
+      Helper.constantize(@type).new(self).update_according_to_threshold
     else
-      case @type
-      when ::Evaluation::TYPES[:siren]
-        ::Siren.new(self).update_favorable
-      when ::Evaluation::TYPES[:vat]
-        ::Vat.new(self).update_favorable
-      end
+      Helper.constantize(@type).new(self).update_favorable
     end
   end
 

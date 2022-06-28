@@ -19,6 +19,14 @@ RSpec.describe Evaluation do
       allow(double_vat).to receive(:update_favorable)
     end
 
+    context 'when evaluation type is not in list' do
+      let(:evaluations) { [Evaluation.new(type: 'INEXISTANT', value: '123456789', score: 79, state: 'unconfirmed', reason: 'unable_to_reach_api')] }
+
+      it 'raises error' do
+        expect{ evaluation.update! }.to raise_error { 'Unknow evaluation type INEXISTANT' }
+      end
+    end
+
     context 'when <state> unfavorable' do
       let(:siren_evaluation) do
         ::Evaluation.new(type: 'SIREN', value: '320878499', score: 3, state: 'unfavorable', reason: 'company_opened')
