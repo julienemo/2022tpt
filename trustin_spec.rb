@@ -100,7 +100,7 @@ RSpec.describe TrustIn do
       context 'when the <state> is unconfirmed AND the <reason> is ongoing_database_update' do
         let(:evaluations) { [Evaluation.new(type: 'VAT', value: '832940670', score: 42, state: 'unconfirmed', reason: 'ongoing_database_update')] }
         
-        before { allow(::FakeVatService).to receive(:perform).and_return({ state: 'favorable', reason: 'company_opened' }) }
+        before { allow(FakeVatService).to receive(:perform).and_return({ state: 'favorable', reason: 'company_opened' }) }
 
         it 'assigns a <state> and a <reason> to the evaluation based on the API response and a <score> to 100' do
           described_class.update_score_for_all(evaluations)
@@ -113,7 +113,7 @@ RSpec.describe TrustIn do
       context 'with a <score> equal to 0' do
         let(:evaluations) { [Evaluation.new(type: 'VAT', value: '320878499', score: 0, state: 'favorable', reason: 'company_opened')] }
 
-        before { allow(::FakeVatService).to receive(:perform).and_return({ state: 'unfavorable', reason: 'company_closed' }) }
+        before { allow(FakeVatService).to receive(:perform).and_return({ state: 'unfavorable', reason: 'company_closed' }) }
 
         it 'assigns a <state> and a <reason> to the evaluation based on the API response and a <score> to 100' do
           described_class.update_score_for_all(evaluations)
@@ -134,11 +134,11 @@ RSpec.describe TrustIn do
       context 'with a <state> unfavorable AND a <score> equal to 0' do
         let(:evaluations) { [Evaluation.new(type: 'VAT', value: 'IE6388047V', score: 0, state: 'unfavorable', reason: 'anything')] }
 
-        before { allow(::FakeVatService).to receive(:perform) }
+        before { allow(FakeVatService).to receive(:perform) }
 
         it 'does not call FakeVatService.perform' do
           described_class.update_score_for_all(evaluations)
-          expect(::FakeVatService).not_to have_received(:perform)
+          expect(FakeVatService).not_to have_received(:perform)
         end
       end
     end

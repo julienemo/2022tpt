@@ -4,16 +4,16 @@ require_relative '../types/vat'
 
 RSpec.describe Evaluation do
   describe '#update!' do
-    let(:double_siren) { instance_double(::Siren) }
-    let(:double_vat) { instance_double(::Vat) }
+    let(:double_siren) { instance_double(Siren) }
+    let(:double_vat) { instance_double(Vat) }
 
     before do
-      allow(::Siren).to receive(:new).and_return(double_siren)
+      allow(Siren).to receive(:new).and_return(double_siren)
       allow(double_siren).to receive(:update_with_api)
       allow(double_siren).to receive(:update_according_to_threshold)
       allow(double_siren).to receive(:update_favorable)
 
-      allow(::Vat).to receive(:new).and_return(double_vat)
+      allow(Vat).to receive(:new).and_return(double_vat)
       allow(double_vat).to receive(:update_with_api)
       allow(double_vat).to receive(:update_according_to_threshold)
       allow(double_vat).to receive(:update_favorable)
@@ -29,10 +29,10 @@ RSpec.describe Evaluation do
 
     context 'when <state> unfavorable' do
       let(:siren_evaluation) do
-        ::Evaluation.new(type: 'SIREN', value: '320878499', score: 3, state: 'unfavorable', reason: 'company_opened')
+        Evaluation.new(type: 'SIREN', value: '320878499', score: 3, state: 'unfavorable', reason: 'company_opened')
       end
       let(:vat_evaluation) do
-        ::Evaluation.new(type: 'VAT', value: 'GB727255821', score: 3, state: 'unfavorable', reason: 'company_opened')
+        Evaluation.new(type: 'VAT', value: 'GB727255821', score: 3, state: 'unfavorable', reason: 'company_opened')
       end
       it 'changes nothing' do
         expect { siren_evaluation.update! }.not_to change { siren_evaluation.score }
@@ -57,10 +57,10 @@ RSpec.describe Evaluation do
 
       context 'when <state> unconfirmed and <reason> ongoing_database_update' do
         let(:siren_evaluation) do
-          ::Evaluation.new(type: 'SIREN', value: '320878499', score: 3, state: 'unconfirmed', reason: 'ongoing_database_update')
+          Evaluation.new(type: 'SIREN', value: '320878499', score: 3, state: 'unconfirmed', reason: 'ongoing_database_update')
         end
         let(:vat_evaluation) do
-          ::Evaluation.new(type: 'VAT', value: 'GB727255821', score: 3, state: 'unconfirmed', reason: 'ongoing_database_update')
+          Evaluation.new(type: 'VAT', value: 'GB727255821', score: 3, state: 'unconfirmed', reason: 'ongoing_database_update')
         end
 
         include_examples 'triggers update_with_api'
@@ -68,10 +68,10 @@ RSpec.describe Evaluation do
   
       context 'when <score> 0' do
         let(:siren_evaluation) do
-          ::Evaluation.new(type: 'SIREN', value: '320878499', score: 0, state: 'favorable', reason: 'company_opened')
+          Evaluation.new(type: 'SIREN', value: '320878499', score: 0, state: 'favorable', reason: 'company_opened')
         end
         let(:vat_evaluation) do
-          ::Evaluation.new(type: 'VAT', value: 'GB727255821', score: 0, state: 'favorable', reason: 'company_opened')
+          Evaluation.new(type: 'VAT', value: 'GB727255821', score: 0, state: 'favorable', reason: 'company_opened')
         end
         
         include_examples 'triggers update_with_api'
@@ -80,10 +80,10 @@ RSpec.describe Evaluation do
 
     context 'when <state> unconfirmed AND <reason> unable_to_reach_api' do
       let(:siren_evaluation) do
-        ::Evaluation.new(type: 'SIREN', value: '320878499', score: 3, state: 'unconfirmed', reason: 'unable_to_reach_api')
+        Evaluation.new(type: 'SIREN', value: '320878499', score: 3, state: 'unconfirmed', reason: 'unable_to_reach_api')
       end
       let(:vat_evaluation) do
-        ::Evaluation.new(type: 'VAT', value: 'GB727255821', score: 3, state: 'unconfirmed', reason: 'unable_to_reach_api')
+        Evaluation.new(type: 'VAT', value: 'GB727255821', score: 3, state: 'unconfirmed', reason: 'unable_to_reach_api')
       end
 
       it 'triggers triggers update_according_to_threshold' do
@@ -97,10 +97,10 @@ RSpec.describe Evaluation do
 
     context 'when <state> favorable' do
       let(:siren_evaluation) do
-        ::Evaluation.new(type: 'SIREN', value: '320878499', score: 3, state: 'favorable', reason: 'company_closeed')
+        Evaluation.new(type: 'SIREN', value: '320878499', score: 3, state: 'favorable', reason: 'company_closeed')
       end
       let(:vat_evaluation) do
-        ::Evaluation.new(type: 'VAT', value: 'GB727255821', score: 3, state: 'favorable', reason: 'company_opened')
+        Evaluation.new(type: 'VAT', value: 'GB727255821', score: 3, state: 'favorable', reason: 'company_opened')
       end
 
       it 'triggers update_favorable' do
@@ -114,7 +114,7 @@ RSpec.describe Evaluation do
   end
 
   describe '#assign_fields' do
-    let(:evaluation) { ::Evaluation.new(score: 3, type: 'type', value: 'value', state: 'state', reason: 'reason') }
+    let(:evaluation) { Evaluation.new(score: 3, type: 'type', value: 'value', state: 'state', reason: 'reason') }
 
     context 'when <score> is negative' do
       it 'limits score to 0' do
