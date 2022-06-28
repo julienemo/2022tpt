@@ -1,5 +1,3 @@
-require 'pry'
-
 class Helper
   class << self
     def constantize(class_name)

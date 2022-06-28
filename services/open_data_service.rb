@@ -7,7 +7,6 @@ class OpenDataService
 
   class << self 
     def get_company_state(siren_number)
-      # I don't like the name evalutaion_value, because I don't understand its meaning
       response = Net::HTTP.get(query_uri(siren_number))
       parsed_response = JSON.parse(response)
       parsed_response['records'].first['fields']['etatadministratifetablissement']
